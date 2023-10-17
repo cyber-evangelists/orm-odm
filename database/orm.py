@@ -1,11 +1,15 @@
 import sqlite3
+table_name = "mytable"
 
-def connect_to_sqlite(database_name):
-    conn = sqlite3.connect(f"{database_name}.db")
+def connect_to_sqlite():
+    # Establish a connection to the SQLite database and return the connection and cursor.
+    conn = sqlite3.connect("mydatabase.db")
     cursor = conn.cursor()
     return conn, cursor
 
-def create_table(cursor, table_name):
+def create_table():
+    conn, cursor = connect_to_sqlite()
+    # Create a table in the database if it doesn't exist, defining its structure.
     cursor.execute(f'''CREATE TABLE IF NOT EXISTS {table_name} (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         name TEXT,
@@ -14,79 +18,83 @@ def create_table(cursor, table_name):
                         age INTEGER,
                         city TEXT)''')
 
-def create_document(cursor, conn, table_name, data):
+def create_record(data):
+    conn, cursor = connect_to_sqlite()
     try:
+        # Insert a new record into the SQLite table with the provided data.
         cursor.execute(f"INSERT INTO {table_name} (name, email, phone, age, city) VALUES (?, ?, ?, ?, ?)",
                        (data["name"], data["email"], data["phone"], data["age"], data["city"]))
         conn.commit()
         return cursor.lastrowid
     except Exception as e:
-        return str(e)
+        print(f"[ERROR] {str(e)}")
+        return None
+    finally:
+        if conn:
+            conn.close()
 
-def read_document(cursor, table_name, document_id):
+def read_record(user_id):
+    conn, cursor = connect_to_sqlite()
     try:
-        cursor.execute(f"SELECT * FROM {table_name} WHERE id=?", (document_id,))
-        document = cursor.fetchone()
-        return document
+        # Retrieve a specific record by its ID and return it as a dictionary.
+        cursor.execute(f"SELECT * FROM {table_name} WHERE id=?", (user_id,))
+        user = cursor.fetchone()
+        if user is not None:
+            columns = [desc[0] for desc in cursor.description]
+            user_dict = dict(zip(columns, user))
+            return user_dict
+        else:
+            return None
     except Exception as e:
-        return str(e)
+        print(f"[ERROR] {str(e)}")
+        return None
+    finally:
+        if conn:
+            conn.close()
 
-def update_document(cursor, conn, table_name, document_id, new_data):
+def update_record(user_id, new_data):
+    conn, cursor = connect_to_sqlite()
     try:
-        cursor.execute(f"UPDATE {table_name} SET age=? WHERE id=?", (new_data["age"], document_id))
+        # Update a record with new data, with flexibility for any number of updates.
+        set_clause = ", ".join([f"{key} = ?" for key in new_data.keys()])
+        values = tuple(new_data.values())
+        update_query = f"UPDATE {table_name} SET {set_clause} WHERE id = ?"
+        cursor.execute(update_query, values + (user_id,))
         conn.commit()
         return cursor.rowcount
     except Exception as e:
-        return str(e)
+        print(f"[ERROR] {str(e)}")
+        return None
+    finally:
+        if conn:
+            conn.close()
 
-def delete_document(cursor, conn, table_name, document_id):
+def delete_record(user_id):
+    conn, cursor = connect_to_sqlite()
     try:
-        cursor.execute(f"DELETE FROM {table_name} WHERE id=?", (document_id,))
+        # Delete a record with the given ID.
+        cursor.execute(f"DELETE FROM {table_name} WHERE id=?", (user_id,))
         conn.commit()
         return cursor.rowcount
     except Exception as e:
-        return str(e)
+        print(f"[ERROR] {str(e)}")
+        return None
+    finally:
+        if conn:
+            conn.close()
 
-def read_all_documents(cursor, table_name):
+def read_all_records():
+    conn, cursor = connect_to_sqlite()
     try:
+        # Read and return all records from the SQLite table as a list of dictionaries.
         cursor.execute(f"SELECT * FROM {table_name}")
-        documents = cursor.fetchall()
-        return documents
+        columns = [desc[0] for desc in cursor.description]  # Get column names
+        users = [dict(zip(columns, row)) for row in cursor.fetchall()]
+        return users
     except Exception as e:
-        return str(e)
+        print(f"[ERROR] {str(e)}")
+        return None
+    finally:
+        if conn:
+            conn.close()
 
-if __name__ == "__main__":
-    conn, cursor = connect_to_sqlite("mydatabase")
-    table_name = "mycollection"
-
-    create_table(cursor, table_name)
-
-    data = {"name": "John", "email": "abc@xyz.con", "phone": "03124578963", "age": 30, "city": "New York"}
-    document_id = create_document(cursor, conn, table_name, data)
-    print(f"Inserted document with ID: {document_id}")
-
-    retrieved_document = read_document(cursor, table_name, document_id)
-    print("Retrieved document:")
-    print(retrieved_document)
-
-    updated_data = {"age": 31}
-    modified_count = update_document(cursor, conn, table_name, document_id, updated_data)
-    print(f"Modified {modified_count} document(s)")
-
-    updated_document = read_document(cursor, table_name, document_id)
-    print("Updated document:")
-    print(updated_document)
-
-    all_documents = read_all_documents(cursor, table_name)
-    print("All documents in the collection:")
-    for doc in all_documents:
-        print(doc)
-
-    deleted_count = delete_document(cursor, conn, table_name, document_id)
-    print(f"Deleted {deleted_count} document(s)")
-
-    deleted_document = read_document(cursor, table_name, document_id)
-    print("Deleted document:")
-    print(deleted_document)
-
-    conn.close()
