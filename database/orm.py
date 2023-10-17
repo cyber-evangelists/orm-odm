@@ -98,36 +98,3 @@ def read_all_records():
         if conn:
             conn.close()
 
-if __name__ == "__main__":
-    create_table()
-
-    # Uncomment and modify the code as needed to test your functions.
-    # data = {"name": "John", "email": "abc@xyz.con", "phone": "03124578963", "age": 30, "city": "New York"}
-    # user_id = create_record(data)
-    # print(f"Inserted record with ID: {user_id}")
-
-    # retrieved_record = read_record(user_id)
-    # print("Retrieved record:")
-    # print(retrieved_record)
-
-    updated_data = {"age": 31, "name": "ali"}
-    modified_count = update_record(7, updated_data)
-    print(f"Modified {modified_count} record(s)")
-
-    # Uncomment the code below to read all records, delete records, etc.
-    # updated_record = read_record(user_id)
-    # print("Updated record:")
-    # print(updated_record)
-
-    # all_records = read_all_records()
-    # print("All records in the collection:")
-    # print(all_records)
-    # for record in all_records:
-    #     print(record)
-
-    # deleted_count = delete_record(user_id)
-    # print(f"Deleted {deleted_count} record(s)")
-
-    # deleted_record = read_record(user_id)
-    # print("Deleted record:")
-    # print(deleted_record)

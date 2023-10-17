@@ -58,34 +58,3 @@ def read_all_documents():
     except Exception as e:
         print(f"[ERROR] {str(e)}")
         return None
-
-if __name__ == "__main__":
-    # Uncomment and modify the code as needed to test your functions.
-    # data = {"name": "John", "email": "abc@xyz.con", "phone": "03124578963", "age": 30, "city": "New York"}
-    # document_id = create_document(data)
-    # print(f"Inserted document with ID: {document_id}")
-
-    # retrieved_document = read_document(document_id)
-    # print("Retrieved document:")
-    # print(retrieved_document)
-
-    # updated_data = {"age": 31}
-    # modified_count = update_document(document_id, updated_data)
-    # print(f"Modified {modified_count} document(s)")
-
-    # Uncomment the code below to read all documents, delete documents, etc.
-    # updated_document = read_document(document_id)
-    # print("Updated document:")
-    # print(updated_document)
-
-    # all_documents = read_all_documents()
-    # print("All documents in the collection:")
-    # for doc in all_documents:
-    #     print(doc)
-
-    # deleted_count = delete_document(document_id)
-    # print(f"Deleted {deleted_count} document(s)")
-
-    # deleted_document = read_document(document_id)
-    # print("Deleted document:")
-    # print(deleted_document)
